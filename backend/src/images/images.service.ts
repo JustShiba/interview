@@ -1,26 +1,73 @@
-import { Injectable } from '@nestjs/common';
-import { CreateImageDto } from './dto/create-image.dto';
-import { UpdateImageDto } from './dto/update-image.dto';
+import * as fs from 'fs';
+import * as path from 'path';
+
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Multer } from 'multer';
+import { Response } from 'express';
 
 @Injectable()
 export class ImagesService {
-  create(createImageDto: CreateImageDto) {
-    return 'This action adds a new image';
+  private readonly imageFolder = path.resolve('images');
+
+  findAll(): string[] {
+    try {
+      const imagesPath = this.imageFolder;
+      const images = fs.readdirSync(imagesPath);
+
+      if (!images.length) throw new NotFoundException('Image not found');
+
+      return images;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  findAll() {
-    return `This action returns all images`;
+  findOne(filename: string, res: Response): void {
+    const imagePath = path.join(this.imageFolder, filename);
+
+    if (!fs.existsSync(imagePath)) {
+      throw new NotFoundException('Image not found');
+    }
+    const readStream = fs.createReadStream(imagePath);
+    readStream.pipe(res);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} image`;
+  update(filename: string, file: Multer.File): void {
+    try {
+      const imagePath = path.join(this.getImageFolder(), filename);
+
+      if (!fs.existsSync(imagePath)) {
+        throw new NotFoundException('Image not found');
+      }
+
+      const writeStream = fs.createWriteStream(imagePath);
+      writeStream.write(file.buffer);
+      writeStream.end();
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
-  update(id: number, updateImageDto: UpdateImageDto) {
-    return `This action updates a #${id} image`;
+  async remove(filename: string): Promise<void> {
+    try {
+      const imagePath = path.join(this.getImageFolder(), filename);
+
+      fs.unlink(imagePath, (error) => {
+        if (error) {
+          throw new Error(`Failed to delete image ${filename}`);
+        }
+      });
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} image`;
+  getImageFolder(): string {
+    return this.imageFolder;
   }
 }
