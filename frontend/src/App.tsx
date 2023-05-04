@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 
 import { Gallery, Carousel } from "./components";
+import { Image } from "./interfaces";
 
 import "./App.css";
 
 function App() {
   const [isSliderView, setIsSliderView] = useState<boolean>(false);
-  const [imagesLinks, setImagesLinks] = useState<string[]>([]);
+  const [images, setImages] = useState<Image[]>([]);
 
   const handleToggleButtonPress = () => {
     setIsSliderView((prev) => !prev);
@@ -19,7 +20,7 @@ function App() {
 
     fetch(`${apiUrl}/images`)
       .then((data) => data.json())
-      .then((images) => setImagesLinks(images));
+      .then((images) => setImages(images));
   }, []);
 
   return (
@@ -27,8 +28,8 @@ function App() {
       <button className="toggle-button" onClick={handleToggleButtonPress}>
         Toggle view
       </button>
-      {isSliderView && <Carousel imagesLinks={imagesLinks} />}
-      {!isSliderView && <Gallery imagesLinks={imagesLinks} />}
+      {isSliderView && <Carousel images={images} />}
+      {!isSliderView && <Gallery images={images} />}
     </div>
   );
 }

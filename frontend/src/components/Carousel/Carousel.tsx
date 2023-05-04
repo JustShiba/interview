@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 
+import { Image } from "../../interfaces";
+
 import "./carousel.css";
 
 interface CarouselProps {
-  imagesLinks: string[];
+  images: Image[];
 }
 
-export const Carousel = ({ imagesLinks }: CarouselProps) => {
+export const Carousel = ({ images }: CarouselProps) => {
   const [slideIndex, setSlideIndex] = useState(0);
 
   const handlePrevSlide = () => {
@@ -14,16 +16,14 @@ export const Carousel = ({ imagesLinks }: CarouselProps) => {
   };
 
   const handleNextSlide = () => {
-    setSlideIndex((prev) =>
-      prev === imagesLinks.length - 1 ? prev : prev + 1
-    );
+    setSlideIndex((prev) => (prev === images.length - 1 ? prev : prev + 1));
   };
 
   const handleDotClick = (index: number) => {
     setSlideIndex(index);
   };
 
-  if (imagesLinks.length === 0) {
+  if (images.length === 0) {
     return <h1>There are no images</h1>;
   }
 
@@ -43,16 +43,13 @@ export const Carousel = ({ imagesLinks }: CarouselProps) => {
           className="slides"
           style={{
             transform: `translateX(-${slideIndex * 400}px)`,
-            width: `${imagesLinks.length * 100}%`,
+            width: `${images.length * 100}%`,
           }}
         >
-          {imagesLinks.length &&
-            imagesLinks.map((link) => (
-              <div key={link} className="slide">
-                <img
-                  src={`${process.env.REACT_APP_API_URL}/images/${link}`}
-                  alt={link.split(".")[0].split("_")[1] || link}
-                />
+          {images.length &&
+            images.map((image) => (
+              <div key={`${image.id}${image.albumId}`} className="slide">
+                <img src={image.url || image.path} alt="card-img" />
               </div>
             ))}
         </div>
@@ -60,20 +57,20 @@ export const Carousel = ({ imagesLinks }: CarouselProps) => {
         <div className="controls"></div>
       </div>
       <button
-        disabled={slideIndex === imagesLinks.length - 1}
+        disabled={slideIndex === images.length - 1}
         className={`next arrow-button control-prev ${
-          slideIndex === imagesLinks.length - 1 ? "arrow-button-disabled" : ""
+          slideIndex === images.length - 1 ? "arrow-button-disabled" : ""
         }`}
         onClick={handleNextSlide}
       >
         &#10095;
       </button>
       <div className="dots-container">
-        {imagesLinks.length &&
-          imagesLinks.map((link, index) => (
+        {images.length &&
+          images.map((image, index) => (
             <button
               disabled={slideIndex === index}
-              key={link + index}
+              key={`${image.albumId}${image.id}`}
               className={`dot ${slideIndex === index ? "dot-disabled" : ""}`}
               onClick={() => handleDotClick(index)}
             />

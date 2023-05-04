@@ -1,26 +1,25 @@
 import React from "react";
 
+import { Image } from "../../interfaces";
+
 import "./gallery.css";
 
 interface GalleryProps {
-  imagesLinks: string[];
+  images: Image[];
 }
 
-export const Gallery = ({ imagesLinks }: GalleryProps) => {
-  if (imagesLinks.length === 0) {
+export const Gallery = ({ images }: GalleryProps) => {
+  if (images.length === 0) {
     return <h1>There are no images</h1>;
   }
 
   return (
     <div className="gallery-box">
-      {imagesLinks.length &&
-        imagesLinks.map((link) => (
-          <div className="gallery-card" key={link}>
-            <img
-              src={`${process.env.REACT_APP_API_URL}/images/${link}`}
-              alt={link.split(".")[0].split("_")[1] || link}
-            />
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+      {images.length &&
+        images.map((image) => (
+          <div className="gallery-card" key={`${image.id}${image.albumId}`}>
+            <img src={image.url || image.path} alt="card-img" />
+            {image.title && <p>{image.title}</p>}
           </div>
         ))}
     </div>
