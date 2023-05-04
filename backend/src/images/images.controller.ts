@@ -1,7 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+
 import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
+import { Image } from './interfaces/image.interface';
 
 @Controller('images')
 export class ImagesController {
@@ -13,8 +23,8 @@ export class ImagesController {
   }
 
   @Get()
-  findAll() {
-    return this.imagesService.findAll();
+  async findAll(): Promise<Image[]> {
+    return await this.imagesService.findAll();
   }
 
   @Get(':id')
